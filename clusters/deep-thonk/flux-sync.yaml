@@ -9,6 +9,6 @@ spec:
   sourceRef:
     kind: OCIRepository
     name: flux-system
-  path: "./flux"
+  path: "./base/flux"
   prune: true
   timeout: 1m
