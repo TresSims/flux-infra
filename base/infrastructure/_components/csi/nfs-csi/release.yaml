@@ -18,15 +18,7 @@ spec:
   values:
     feature:
       enableFSGroupPolicy: true
-    storageClasses:
-      - name: nfs-retain
-        annotations:
-          storageclass.kubernetes.io/is-default-class: "true"
-        parameters:
-          server: deep-thonk.com
-          share: /mnt/plex/k8s
-          mountPermissions: "0755"
-        reclaimPolicy: Retain
-        volumeBindingMode: Immediate
-        mountOptions:
-          - nfsvers=4.1
+  valuesFrom:
+    - kind: ConfigMap
+      name: csi-driver-nfs-cluster-values
+      optional: true

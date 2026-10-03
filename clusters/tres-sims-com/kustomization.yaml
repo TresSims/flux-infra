@@ -11,7 +11,7 @@ generatorOptions:
 configMapGenerator:
   - name: cluster-substitutions
     literals:
-      - cluster=tres-sims
+      - cluster=tres-sims-com
   - name: cilium-cluster-values
     options:
       labels:

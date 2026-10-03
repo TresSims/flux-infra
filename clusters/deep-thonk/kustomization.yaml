@@ -18,3 +18,9 @@ configMapGenerator:
         reconcile.fluxcd.io/watch: Enabled
     files:
       - values.yaml=_cluster-overrides/cilium-cluster-values.yaml
+  - name: csi-driver-nfs-cluster-values
+    options:
+      labels:
+        reconcile.fluxcd.io/watch: Enabled
+    files:
+      - values.yaml=_cluster-overrides/csi-driver-nfs-cluster-values.yaml

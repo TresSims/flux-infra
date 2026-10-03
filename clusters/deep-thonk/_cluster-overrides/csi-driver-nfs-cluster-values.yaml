@@ -1,0 +1,9 @@
+---
+storageClasses:
+  - name: nfs-retain
+    annotations:
+      storageclass.kubernetes.io/is-default-class: "true"
+    reclaimPolicy: Retain
+    volumeBindingMode: Immediate
+    mountOptions:
+      - nfsvers=4.1

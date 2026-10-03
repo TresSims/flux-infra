@@ -17,19 +17,13 @@ spec:
       interval: 10m
   values:
     replicaCount: 1
-
-    # Chart default is the floating `busybox:latest`.
     helperImage:
       repository: docker.io/library/busybox
       tag: "1.38.0"
-
-    # Chart default is /opt/local-path-provisioner, but /opt is an overlay on
-    # Talos. /var/mnt is the path the Sidero local storage guide prescribes.
     nodePathMap:
       - node: DEFAULT_PATH_FOR_NON_LISTED_NODES
         paths:
           - /var/local-path-provisioner
-
     storageClass:
       create: true
       defaultClass: true
