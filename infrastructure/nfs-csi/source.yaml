@@ -1,0 +1,10 @@
+---
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: HelmRepository
+metadata:
+  name: nfs-csi-helm
+  namespace: nfs-csi
+spec:
+  interval: 1m0s
+  # yamllint disable-line rule:line-length
+  url: https://raw.githubusercontent.com/kubernetes-csi/csi-driver-nfs/master/charts

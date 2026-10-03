@@ -1,0 +1,22 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: technitium
+  namespace: technitium
+spec:
+  chartRef:
+    kind: OCIRepository
+    name: technitium-helm
+  interval: 10m
+  values:
+    service:
+      type: LoadBalancer
+      loadBalancerIP: "192.168.1.53"
+      dnsPort: 53
+      httpPort: 5380
+    persistence:
+      enabled: true
+      size: 1Gi
+    metrics:
+      enabled: true

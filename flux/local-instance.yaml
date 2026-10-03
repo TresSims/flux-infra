@@ -1,0 +1,41 @@
+---
+apiVersion: fluxcd.controlplane.io/v1
+kind: FluxInstance
+metadata:
+  name: flux
+  namespace: flux-system
+spec:
+  distribution:
+    version: "2.x"
+    registry: ghcr.io/fluxcd
+  components:
+    - source-controller
+    - kustomize-controller
+    - helm-controller
+    - notification-controller
+  sync:
+    kind: OCIRepository
+    url: oci://ghcr.io/tressims/deep-thonk-flux
+    ref: latest
+    path: .
+  kustomize:
+    patches:
+      - target:
+          kind: OCIRepository
+          name: flux-system
+        patch: |
+          - op: replace
+            path: /spec/ref
+            value:
+              semver: ">=0.1.0"
+      - target:
+          kind: OCIRepository
+          name: flux-system
+        patch: |
+          - op: add
+            path: /spec/verify
+            value:
+              provider: cosign
+              matchOIDCIdentity:
+                - issuer: "^https://token.actions.githubusercontent.com$"
+                  subject: "^https://github.com/TresSims/deep-thonk-flux.*$"

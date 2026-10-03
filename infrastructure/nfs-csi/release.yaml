@@ -1,0 +1,32 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: nfs-csi
+  namespace: nfs-csi
+spec:
+  interval: 10m
+  chart:
+    spec:
+      chart: csi-driver-nfs
+      version: '4.13.0'
+      sourceRef:
+        kind: HelmRepository
+        name: nfs-csi-helm
+        namespace: nfs-csi
+      interval: 10m
+  values:
+    feature:
+      enableFSGroupPolicy: true
+    storageClasses:
+      - name: nfs-retain
+        annotations:
+          storageclass.kubernetes.io/is-default-class: "true"
+        parameters:
+          server: deep-thonk.com
+          share: /mnt/plex/k8s
+          mountPermissions: "0755"
+        reclaimPolicy: Retain
+        volumeBindingMode: Immediate
+        mountOptions:
+          - nfsvers=4.1

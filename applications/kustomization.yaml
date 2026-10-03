@@ -1,0 +1,12 @@
+---
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - o11y
+  - vault
+  - node-exporter
+  - metrics-server
+  - kube-state-metrics
+  - technitium
+  - tailscale
+  - tetragon

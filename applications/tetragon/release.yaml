@@ -1,0 +1,25 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: tetragon
+  namespace: tetragon
+spec:
+  interval: 10m
+  chart:
+    spec:
+      chart: tetragon
+      version: "1.6.1"
+      sourceRef:
+        kind: HelmRepository
+        name: tetragon-helm
+        namespace: tetragon
+      interval: 10m
+  values:
+    podAnnotations:
+      prometheus.io/scrape: "true"
+      prometheus.io/port: "2112"
+    tetragonOperator:
+      podAnnotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "2113"

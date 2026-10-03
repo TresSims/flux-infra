@@ -1,0 +1,18 @@
+otelcol.receiver.otlp "collection" {
+	http {
+		endpoint = "0.0.0.0:4317"
+	}
+
+	output {
+		metrics = [otelcol.exporter.prometheus.ingress_metrics.input]
+		logs    = [otelcol.exporter.loki.ingress_logs.input]
+	}
+}
+
+otelcol.exporter.loki "ingress_logs" {
+	forward_to = [loki.write.k8s.receiver]
+}
+
+otelcol.exporter.prometheus "ingress_metrics" {
+	forward_to = [prometheus.remote_write.vmetrics.receiver]
+}

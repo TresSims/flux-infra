@@ -1,0 +1,150 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: alloy
+  namespace: o11y
+spec:
+  interval: 10m
+  chart:
+    spec:
+      chart: alloy
+      version: "1.10.0"
+      sourceRef:
+        kind: HelmRepository
+        name: grafana-helm
+        namespace: o11y
+      interval: 10m
+  values:
+    alloy:
+      extraPorts:
+        - name: collector
+          port: 4317
+          targetPort: 4317
+
+      configMap:
+        create: false
+        name: alloy-config
+        key: "."
+
+      # -- Path to where Grafana Alloy stores data
+      # By default, data is lost between reboots.
+      storagePath: /tmp/alloy
+
+      enableHttpServerPort: true
+      listenAddr: 0.0.0.0
+      listenPort: 12345
+
+      listenScheme: HTTP
+      initialDelaySeconds: 10
+      timeoutSeconds: 1
+
+      uiPathPrefix: /
+
+      enableReporting: false
+
+    service:
+      annotations: {}
+
+    ingress:
+      enabled: true
+      ingressClassName: tailscale
+      # An empty `hosts` makes the chart emit a single hostless rule whose
+      # backend port comes from `faroPort`, which is what the tailscale
+      # operator wants. Note `extraPaths` is only rendered inside the `hosts`
+      # loop, so it is silently dropped when `hosts` is empty.
+      hosts: []
+      # -- Backend port for the hostless rule. Points at the OTLP receiver
+      # rather than the chart default of 12347 (the Faro receiver), which the
+      # service does not expose. The UI on 12345 is deliberately not exposed;
+      # port-forward to it when debugging.
+      faroPort: 4317
+      path: /
+      pathType: Prefix
+      # -- The operator uses the first TLS host as the tailnet machine name,
+      # so Alloy is served at https://alloy.<tailnet>.ts.net
+      tls:
+        - hosts:
+            - alloy
+
+    image:
+      registry: "docker.io"
+      repository: grafana/alloy
+      tag: null
+      pullPolicy: IfNotPresent
+
+    rbac:
+      create: true
+
+      rules:
+        # -- Rules required for the `discovery.kubernetes` component.
+        - apiGroups: ["", "discovery.k8s.io", "networking.k8s.io"]
+          resources:
+            ["endpoints", "endpointslices", "ingresses", "pods", "services"]
+          verbs: ["get", "list", "watch"]
+        # -- Rules required for the `loki.source.kubernetes` component.
+        - apiGroups: [""]
+          resources: ["pods", "pods/log", "namespaces"]
+          verbs: ["get", "list", "watch"]
+        # -- Rules required for the `loki.source.podlogs` component.
+        - apiGroups: ["monitoring.grafana.com"]
+          resources: ["podlogs"]
+          verbs: ["get", "list", "watch"]
+        # -- Rules required for the `mimir.rules.kubernetes` component.
+        - apiGroups: ["monitoring.coreos.com"]
+          resources: ["prometheusrules"]
+          verbs: ["get", "list", "watch"]
+        # -- Rules required for the `mimir.alerts.kubernetes` component.
+        - apiGroups: ["monitoring.coreos.com"]
+          resources: ["alertmanagerconfigs"]
+          verbs: ["get", "list", "watch"]
+        # -- Rules required for the `prometheus.operator.*` components.
+        - apiGroups: ["monitoring.coreos.com"]
+          resources:
+            ["podmonitors", "servicemonitors", "probes", "scrapeconfigs"]
+          verbs: ["get", "list", "watch"]
+        # -- Rules required for the `loki.source.kubernetes_events` component.
+        - apiGroups: [""]
+          resources: ["events"]
+          verbs: ["get", "list", "watch"]
+        # -- Rules required for the `remote.kubernetes.*` components.
+        - apiGroups: [""]
+          resources: ["configmaps", "secrets"]
+          verbs: ["get", "list", "watch"]
+        # -- Rules required for the `otelcol.processor.k8sattributes` component.
+        - apiGroups: ["apps", "extensions"]
+          resources: ["replicasets"]
+          verbs: ["get", "list", "watch"]
+
+      clusterRules:
+        - apiGroups: [""]
+          resources: ["nodes"]
+          verbs: ["get", "list", "watch"]
+        # -- Rules required for the `discovery.kubelet` component.
+        - apiGroups: [""]
+          resources: ["nodes/pods"]
+          verbs: ["get", "list", "watch"]
+        - apiGroups: [""]
+          resources: ["nodes/metrics"]
+          verbs: ["get", "list", "watch"]
+        # -- Rules required for accessing metrics endpoint.
+        - nonResourceURLs: ["/metrics"]
+          verbs: ["get"]
+
+    serviceAccount:
+      create: true
+      additionalLabels: {}
+      annotations: {}
+
+    # Options for the extra controller used for config reloading.
+    configReloader:
+      enabled: true
+      image:
+        registry: "quay.io"
+        repository: prometheus-operator/prometheus-config-reloader
+        tag: v0.81.0
+        digest: ""
+      resources:
+        requests:
+          cpu: "10m"
+          memory: "50Mi"

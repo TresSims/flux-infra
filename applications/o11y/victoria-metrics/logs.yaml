@@ -1,0 +1,23 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: victoria-logs
+  namespace: o11y
+spec:
+  interval: 10m
+  chart:
+    spec:
+      chart: victoria-logs-single
+      version: "0.11.31"
+      sourceRef:
+        kind: HelmRepository
+        name: victoria-metrics-helm
+        namespace: o11y
+      interval: 10m
+  values:
+    server:
+      podSecurityContext:
+        fsGroup: 0
+        runAsNonRoot: false
+        runAsUser: 0

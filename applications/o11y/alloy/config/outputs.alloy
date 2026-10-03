@@ -1,0 +1,23 @@
+loki.write "k8s" {
+	endpoint {
+		url = "http://victoria-logs-victoria-logs-single-server.o11y:9428/insert/loki/api/v1/push"
+
+		headers = {
+			"VL-Stream-Fields" = "namespace,pod,container,app",
+		}
+	}
+
+	external_labels = {
+		cluster = "k8s.deep-thonk",
+	}
+}
+
+prometheus.remote_write "vmetrics" {
+	endpoint {
+		url = "http://victoria-metrics-victoria-metrics-single-server.o11y.svc.cluster.local:8428/prometheus/api/v1/write"
+	}
+
+	external_labels = {
+		cluster = "k8s.deep-thonk",
+	}
+}
