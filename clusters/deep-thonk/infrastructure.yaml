@@ -9,8 +9,11 @@ spec:
   sourceRef:
     kind: OCIRepository
     name: flux-system
-  path: "./infrastructure"
+  path: "./base/infrastructure"
   prune: true
   timeout: 1m
   dependsOn:
     - name: flux-system
+  components:
+    - "./base/infrastructure/_components/csi/nfs-csi"
+    - "./base/infrastructure/_components/metallb"

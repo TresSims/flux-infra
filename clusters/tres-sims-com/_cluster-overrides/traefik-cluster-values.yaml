@@ -1,0 +1,25 @@
+---
+deployment:
+  kind: DaemonSet
+service:
+  type: NodePort
+hostNetwork: true
+securityContext:
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: true
+  capabilities:
+    drop:
+      - ALL
+    add:
+      - NET_BIND_SERVICE
+updateStrategy:
+  rollingUpdate:
+    maxUnavailable: 1
+    maxSurge: 0
+ports:
+  metrics:
+    port: 9200
+  websecure:
+    port: 443
+  web:
+    port: 80

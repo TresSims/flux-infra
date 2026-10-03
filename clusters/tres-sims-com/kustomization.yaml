@@ -11,10 +11,16 @@ generatorOptions:
 configMapGenerator:
   - name: cluster-substitutions
     literals:
-      - cluster=deep-thonk
+      - cluster=tres-sims
   - name: cilium-cluster-values
     options:
       labels:
         reconcile.fluxcd.io/watch: Enabled
     files:
       - values.yaml=_cluster-overrides/cilium-cluster-values.yaml
+  - name: traefik-cluster-values
+    options:
+      labels:
+        reconcile.fluxcd.io/watch: Enabled
+    files:
+      - values.yaml=_cluster-overrides/traefik-cluster-values.yaml

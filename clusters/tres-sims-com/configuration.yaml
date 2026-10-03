@@ -8,8 +8,8 @@ spec:
   interval: 1m
   sourceRef:
     kind: OCIRepository
-    name: flux-system
-  path: "./clusters/deep-thonk/configuration"
+    name: flux-sync
+  path: "./clusters/tres-sims-com/configuration"
   prune: true
   timeout: 1m
   dependsOn:
