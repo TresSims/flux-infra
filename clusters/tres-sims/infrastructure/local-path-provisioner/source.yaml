@@ -1,0 +1,11 @@
+---
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: HelmRepository
+metadata:
+  name: local-path-provisioner-helm
+  namespace: local-path-provisioner
+spec:
+  interval: 1m0s
+  # Rancher does not publish a chart repo for local-path-provisioner
+  # (rancher/local-path-provisioner#89); containeroo republishes it unmodified.
+  url: https://charts.containeroo.ch

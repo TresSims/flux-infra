@@ -1,0 +1,14 @@
+---
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: OCIRepository
+metadata:
+  name: kube-state-metrics-helm
+  namespace: kube-state-metrics
+spec:
+  layerSelector:
+    mediaType: "application/vnd.cncf.helm.chart.content.v1.tar+gzip"
+    operation: copy
+  interval: 1m0s
+  url: oci://ghcr.io/prometheus-community/charts/kube-state-metrics
+  ref:
+    semver: "8.1.3"

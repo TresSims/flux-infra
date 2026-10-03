@@ -1,0 +1,33 @@
+---
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: foundryvtt-creds
+  namespace: foundryvtt
+spec:
+  refreshInterval: 1m0s
+  secretStoreRef:
+    name: infisical
+    kind: SecretStore
+  target:
+    name: foundryvtt-creds
+    template:
+      type: Opaque
+      data:
+        FOUNDRY_LICENSE_KEY: "{{.FOUNDRY_LICENSE_KEY}}"
+        FOUNDRY_ADMIN_KEY: "{{.FOUNDRY_ADMIN_KEY}}"
+        FOUNDRY_USERNAME: "{{.FOUNDRY_USERNAME}}"
+        FOUNDRY_PASSWORD: "{{.FOUNDRY_PASSWORD}}"
+  data:
+    - secretKey: FOUNDRY_LICENSE_KEY
+      remoteRef:
+        key: /foundryvtt/FOUNDRY_LICENSE_KEY
+    - secretKey: FOUNDRY_ADMIN_KEY
+      remoteRef:
+        key: /foundryvtt/FOUNDRY_ADMIN_KEY
+    - secretKey: FOUNDRY_USERNAME
+      remoteRef:
+        key: /foundryvtt/FOUNDRY_USERNAME
+    - secretKey: FOUNDRY_PASSWORD
+      remoteRef:
+        key: /foundryvtt/FOUNDRY_PASSWORD

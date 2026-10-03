@@ -1,0 +1,10 @@
+---
+apiVersion: tailscale.com/v1alpha1
+kind: ProxyGroup
+metadata:
+  name: tres-sims-com
+spec:
+  type: kube-apiserver
+  replicas: 1
+  kubeAPIServer:
+    mode: auth

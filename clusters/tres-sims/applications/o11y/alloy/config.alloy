@@ -1,0 +1,362 @@
+logging {
+  level = "info"
+  format = "logfmt"
+}
+
+discovery.kubernetes "pods" {
+  role = "pod"
+  selectors {
+    role = "pod"
+    field = "spec.nodeName=" + coalesce(sys.env("HOSTNAME"), constants.hostname)
+  }
+}
+
+discovery.kubernetes "services" {
+  role = "service"
+}
+
+
+// Log Collection
+
+// Pod Logs
+
+discovery.relabel "pod_logs" {
+  targets = discovery.kubernetes.pods.targets
+
+  // Label creation - "namespace" field from "__meta_kubernetes_namespace"
+  rule {
+    source_labels = ["__meta_kubernetes_namespace"]
+    action = "replace"
+    target_label = "namespace"
+  }
+
+  // Label creation - "pod" field from "__meta_kubernetes_pod_name"
+  rule {
+    source_labels = ["__meta_kubernetes_pod_name"]
+    action = "replace"
+    target_label = "pod"
+  }
+
+  // Label creation - "container" field from "__meta_kubernetes_pod_container_name"
+  rule {
+    source_labels = ["__meta_kubernetes_pod_container_name"]
+    action = "replace"
+    target_label = "container"
+  }
+
+  // Label creation -  "app" field from "__meta_kubernetes_pod_label_app_kubernetes_io_name"
+  rule {
+    source_labels = ["__meta_kubernetes_pod_label_app_kubernetes_io_name"]
+    action = "replace"
+    target_label = "app"
+  }
+
+  // Label creation -  "job" field from "__meta_kubernetes_namespace" and "__meta_kubernetes_pod_container_name"
+  // Concatenate values __meta_kubernetes_namespace/__meta_kubernetes_pod_container_name
+  rule {
+    source_labels = ["__meta_kubernetes_namespace", "__meta_kubernetes_pod_container_name"]
+    action = "replace"
+    target_label = "job"
+    separator = "/"
+    replacement = "$1"
+  }
+
+  // Label creation - "__path__" field from "__meta_kubernetes_pod_uid" and "__meta_kubernetes_pod_container_name"
+  // Concatenate values __meta_kubernetes_pod_uid/__meta_kubernetes_pod_container_name.log
+  rule {
+    source_labels = ["__meta_kubernetes_pod_uid", "__meta_kubernetes_pod_container_name"]
+    action = "replace"
+    target_label = "__path__"
+    separator = "/"
+    replacement = "/var/log/pods/*$1/*.log"
+  }
+
+  // Label creation -  "container_runtime" field from "__meta_kubernetes_pod_container_id"
+  rule {
+    source_labels = ["__meta_kubernetes_pod_container_id"]
+    action = "replace"
+    target_label = "container_runtime"
+    regex = "^(\\S+):\\/\\/.+$"
+    replacement = "$1"
+  }
+}
+
+loki.source.kubernetes "pod_logs" {
+  targets    = discovery.relabel.pod_logs.output
+  forward_to = [loki.process.pod_logs.receiver]
+}
+
+loki.process "pod_logs" {
+  stage.static_labels {
+      values = {
+        cluster = "tres-sims-com",
+      }
+  }
+
+  forward_to = [otelcol.receiver.loki.deep_thonk.receiver]
+}
+
+
+// Metrics
+
+discovery.relabel "pods" {
+  targets = discovery.kubernetes.pods.targets
+
+  rule {
+    action = "replace"
+    replacement = "tres-sims-com"
+    target_label = "cluster"
+  }
+
+  rule {
+    source_labels = ["__meta_kubernetes_pod_annotation_prometheus_io_scrape"]
+    action        = "keep"
+    regex         = "true"
+  }
+
+  rule {
+    source_labels = ["__meta_kubernetes_pod_annotation_prometheus_io_path"]
+    action        = "replace"
+    target_label  = "__metrics_path__"
+    regex         = "(.+)"
+  }
+
+  rule {
+    source_labels = ["__address__", "__meta_kubernetes_pod_annotation_prometheus_io_port"]
+    action        = "replace"
+    target_label  = "__address__"
+    regex         = "([^:]+)(?::\\d+)?;(\\d+)"
+    replacement   = "$1:$2"
+  }
+
+  rule {
+    source_labels = ["namespace", "__meta_kubernetes_namespace"]
+    separator = ";"
+    regex = "^;(.+)$"
+    target_label  = "namespace"
+    replacement = "$1"
+    action = "replace"
+  }
+
+  rule {
+    source_labels = ["__meta_kubernetes_pod_name"]
+    target_label  = "pod"
+  }
+
+  rule {
+    action = "replace"
+    target_label = "job"  
+    replacement = "prometheus"
+  }
+}
+
+discovery.relabel "services" {
+  targets = discovery.kubernetes.services.targets
+
+  rule {
+    action = "replace"
+    replacement = "tres-sims-com"
+    target_label = "cluster"
+  }
+
+  rule {
+    source_labels = ["__meta_kubernetes_service_annotation_prometheus_io_scrape"]
+    action        = "keep"
+    regex         = "true"
+  }
+
+  rule {
+    source_labels = ["__meta_kubernetes_service_annotation_prometheus_io_path"]
+    action        = "replace"
+    target_label  = "__metrics_path__"
+    regex         = "(.+)"
+  }
+
+  rule {
+    source_labels = ["__address__", "__meta_kubernetes_service_annotation_prometheus_io_port"]
+    action        = "replace"
+    target_label  = "__address__"
+    regex         = "([^:]+)(?::\\d+)?;(\\d+)"
+    replacement   = "$1:$2"
+  }
+
+  rule {
+    source_labels = ["namespace", "__meta_kubernetes_namespace"]
+    separator = ";"
+    regex = "^;(.+)$"
+    target_label  = "namespace"
+    replacement = "$1"
+    action = "replace"
+  }
+
+  rule {
+    source_labels = ["__meta_kubernetes_service_name"]
+    target_label  = "service"
+  }
+
+  rule {
+    action = "replace"
+    target_label = "job"  
+    replacement = "prometheus"
+  }
+}
+
+// Scrape pods
+prometheus.scrape "pods" {
+  targets    = discovery.relabel.pods.output
+  forward_to = [otelcol.receiver.prometheus.deep_thonk.receiver]
+}
+
+// Scrape services
+prometheus.scrape "services" {
+  targets    = discovery.relabel.services.output
+  forward_to = [otelcol.receiver.prometheus.deep_thonk.receiver]
+}
+
+// kubernetes metrics
+discovery.kubernetes "apiserver" {
+  role = "endpoints"
+
+  namespaces {
+    names = ["default"]
+  }
+  
+  selectors {
+    role = "enpoints"
+    label = "component=apiserver,provider=kubernetes"
+  }
+}
+
+discovery.relabel "apiserver" {
+  targets = discovery.kubernetes.apiserver.targets
+
+  rule {
+    source_labels = ["__meta_kubernetes_endpoint_port_name"]
+    regex = "https"
+    action = "keep" 
+  }
+
+  rule {
+    target_label = "__scheme__"
+    replacement = "https"
+  }
+
+  rule {
+    target_label = "__metrics_path__"
+    replacement  = "/metrics"
+  }
+
+  rule {
+    target_label = "job"
+    replacement  = "apiserver"
+  }
+
+  rule {
+    action = "replace"
+    replacement = "tres-sims-com"
+    target_label = "cluster"
+  }
+}
+
+prometheus.scrape "apiserver" {
+  targets    = discovery.relabel.apiserver.output
+  forward_to = [otelcol.receiver.prometheus.deep_thonk.receiver]
+
+  scheme                 = "https"
+  bearer_token_file      = "/var/run/secrets/kubernetes.io/serviceaccount/token"
+  tls_config {
+    ca_file              = "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
+    insecure_skip_verify = false
+  }
+
+  scrape_interval = "30s"
+}
+
+// kube-state-metrics carries labels describing *other* objects ("namespace",
+// "pod", "node", ...), so it gets its own job rather than the annotation
+// driven ones above: those overwrite the labels with the identity of the pod
+// being scraped, which would push every kube_* label to "exported_*".
+// discovery.kubernetes.pods is filtered to this node, so only the Alloy pod
+// sharing a node with kube-state-metrics scrapes it.
+discovery.relabel "kube_state_metrics" {
+  targets = discovery.kubernetes.pods.targets
+
+  rule {
+    source_labels = ["__meta_kubernetes_namespace", "__meta_kubernetes_pod_label_app_kubernetes_io_name"]
+    separator     = "/"
+    regex         = "kube-state-metrics/kube-state-metrics"
+    action        = "keep"
+  }
+
+  // Port 8081 ("metrics") is kube-state-metrics' own telemetry, not the
+  // cluster object metrics.
+  rule {
+    source_labels = ["__meta_kubernetes_pod_container_port_name"]
+    regex         = "http"
+    action        = "keep"
+  }
+
+  rule {
+    action = "replace"
+    replacement = "tres-sims-com"
+    target_label = "cluster"
+  }
+
+  rule {
+    action = "replace"
+    target_label = "job"
+    replacement = "kube-state-metrics"
+  }
+}
+
+prometheus.scrape "kube_state_metrics" {
+  targets    = discovery.relabel.kube_state_metrics.output
+  forward_to = [otelcol.receiver.prometheus.deep_thonk.receiver]
+
+  // Keep the labels kube-state-metrics sets on its own series.
+  honor_labels = true
+
+  scrape_interval = "30s"
+}
+
+// Export
+
+// Metrics and logs are both shipped to the Alloy gateway in the k8s.deep-thonk
+// cluster, which only speaks OTLP, so they are converted on the way out.
+otelcol.receiver.prometheus "deep_thonk" {
+  output {
+    metrics = [otelcol.processor.batch.deep_thonk.input]
+  }
+}
+
+// Every Loki label - including the "cluster" static label - is carried over as
+// an attribute plus a "loki.attribute.labels" hint, which the gateway reads to
+// promote them back to labels on the receiving end.
+otelcol.receiver.loki "deep_thonk" {
+  output {
+    logs = [otelcol.processor.batch.deep_thonk.input]
+  }
+}
+
+otelcol.processor.batch "deep_thonk" {
+  output {
+    metrics = [otelcol.exporter.otlphttp.deep_thonk.input]
+    logs    = [otelcol.exporter.otlphttp.deep_thonk.input]
+  }
+}
+
+otelcol.exporter.otlphttp "deep_thonk" {
+  client {
+    // The tailscale operator points this Service at an egress proxy for
+    // alloy.taile812.ts.net; "/v1/metrics" and "/v1/logs" are appended by the
+    // component.
+    endpoint = "https://alloy-deep-thonk.o11y.svc.cluster.local"
+
+    tls {
+      // The ingress serves a Let's Encrypt cert for its MagicDNS name, which
+      // is not the name we dial.
+      server_name                  = "alloy.taile812.ts.net"
+      include_system_ca_certs_pool = true
+    }
+  }
+}

@@ -1,0 +1,15 @@
+---
+# Tailscale egress proxy for the Alloy gateway running in the k8s.deep-thonk
+# cluster. Pods here can't resolve or route MagicDNS names, so the operator
+# stands up a proxy and rewrites .spec.externalName to point at it.
+apiVersion: v1
+kind: Service
+metadata:
+  name: alloy-deep-thonk
+  namespace: o11y
+  annotations:
+    tailscale.com/tailnet-fqdn: alloy.taile812.ts.net
+spec:
+  type: ExternalName
+  # Replaced by the tailscale operator once the proxy is ready.
+  externalName: placeholder

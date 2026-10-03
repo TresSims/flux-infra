@@ -1,0 +1,38 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: local-path-provisioner
+  namespace: local-path-provisioner
+spec:
+  interval: 10m
+  chart:
+    spec:
+      chart: local-path-provisioner
+      version: "0.0.37"
+      sourceRef:
+        kind: HelmRepository
+        name: local-path-provisioner-helm
+        namespace: local-path-provisioner
+      interval: 10m
+  values:
+    replicaCount: 1
+
+    # Chart default is the floating `busybox:latest`.
+    helperImage:
+      repository: docker.io/library/busybox
+      tag: "1.38.0"
+
+    # Chart default is /opt/local-path-provisioner, but /opt is an overlay on
+    # Talos. /var/mnt is the path the Sidero local storage guide prescribes.
+    nodePathMap:
+      - node: DEFAULT_PATH_FOR_NON_LISTED_NODES
+        paths:
+          - /var/local-path-provisioner
+
+    storageClass:
+      create: true
+      defaultClass: true
+      name: local-path
+      reclaimPolicy: Delete
+      volumeBindingMode: WaitForFirstConsumer

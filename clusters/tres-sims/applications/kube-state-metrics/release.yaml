@@ -1,0 +1,17 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: kube-state-metrics
+  namespace: kube-state-metrics
+spec:
+  chartRef:
+    kind: OCIRepository
+    name: kube-state-metrics-helm
+  interval: 10m
+  values:
+    # The chart annotates its Service with prometheus.io/scrape by default.
+    # Alloy discovers Services cluster-wide, so every Alloy pod in the
+    # daemonset would scrape this one ClusterIP. Alloy scrapes the pod
+    # directly instead - see the "kube_state_metrics" job in config.alloy.
+    prometheusScrape: false

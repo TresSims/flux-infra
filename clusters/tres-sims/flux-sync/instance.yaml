@@ -1,0 +1,42 @@
+---
+apiVersion: fluxcd.controlplane.io/v1
+kind: FluxInstance
+metadata:
+  name: flux
+  namespace: flux-system
+spec:
+  distribution:
+    version: "2.x"
+    registry: ghcr.io/fluxcd
+  components:
+    - source-controller
+    - kustomize-controller
+    - helm-controller
+    - notification-controller
+  sync:
+    kind: OCIRepository
+    name: flux-sync
+    url: oci://ghcr.io/tressims/manifests/tres-sims
+    ref: v0.1.3
+    path: ./
+  kustomize:
+    patches:
+      - target:
+          kind: OCIRepository
+          name: flux-sync
+        patch: |
+          - op: replace
+            path: /spec/ref
+            value:
+              semver: ">=0.1.0"
+      - target:
+          kind: OCIRepository
+          name: flux-sync
+        patch: |
+          - op: add
+            path: /spec/verify
+            value:
+              provider: cosign
+              matchOIDCIdentity:
+                - issuer: "^https://token.actions.githubusercontent.com$"
+                  subject: "^https://github.com/TresSims/tres-sims-infra.*$"

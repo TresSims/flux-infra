@@ -1,0 +1,27 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: foundryvtt
+  namespace: foundryvtt
+spec:
+  interval: 10m
+  chartRef:
+    kind: OCIRepository
+    name: foundryvtt-helm
+    namespace: foundryvtt
+  values:
+    config:
+      domain: tabletop.tres-sims.com
+
+    extraEnvFrom:
+      - secretRef:
+          name: foundryvtt-creds
+
+    ingress:
+      annotations:
+        cert-manager.io/cluster-issuer: letsencrypt-prod
+      tls:
+        - hosts:
+            - tabletop.tres-sims.com
+          secretName: foundry.tls
