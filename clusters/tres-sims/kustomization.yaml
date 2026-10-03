@@ -6,3 +6,9 @@ resources:
   - infrastructure.yaml
   - configuration.yaml
   - applications.yaml
+generatorOptions:
+  disableNameSufficHash: true
+configMapGenerator:
+  - name: cluster-substitutions
+    literals:
+      - cluster=tres-sims

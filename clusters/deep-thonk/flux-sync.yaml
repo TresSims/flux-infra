@@ -12,3 +12,7 @@ spec:
   path: "./base/flux"
   prune: true
   timeout: 1m
+  postBuild:
+    substituteFrom:
+      - kind: ConfigMap
+        name: cluster-substitutions
