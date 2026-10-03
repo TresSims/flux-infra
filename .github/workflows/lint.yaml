@@ -31,5 +31,5 @@ jobs:
         with:
           entrypoint: "/kubeconform"
           # yamllint disable rule:line-length
-          args: -schema-location default -schema-location https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/{{.Group}}/{{.ResourceKind}}_{{.ResourceAPIVersion}}.json -skip kustomize.config.k8s.io/v1beta1/Kustomization -summary -output json ./
+          args: -strict -schema-location default -schema-location https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/{{.Group}}/{{.ResourceKind}}_{{.ResourceAPIVersion}}.json -skip kustomize.config.k8s.io/v1beta1/Kustomization -summary -output json -ignore-filename-pattern '.*.github/.*' -ignore-filename-pattern '.*-cluster-values.yaml' ./
           # yamllint enable rule:line-length
