@@ -17,7 +17,7 @@ spec:
     kind: OCIRepository
     url: oci://ghcr.io/tressims/manifests/flux-infra
     ref: latest
-    path: ./clusters/${cluster}
+    path: ./clusters/tres-sims-com
   kustomize:
     patches:
       - target:

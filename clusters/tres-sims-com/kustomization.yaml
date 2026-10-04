@@ -16,10 +16,3 @@ configMapGenerator:
     namespace: flux-system
     literals:
       - cluster=tres-sims-com
-  - name: traefik-cluster-values
-    namespace: traefik
-    options:
-      labels:
-        reconcile.fluxcd.io/watch: Enabled
-    files:
-      - values.yaml=_cluster-overrides/traefik-cluster-values.yaml
