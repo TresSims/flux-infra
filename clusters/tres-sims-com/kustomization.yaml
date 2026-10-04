@@ -7,7 +7,7 @@ resources:
   - flux-sync.yaml
   - infrastructure.yaml
 generatorOptions:
-  disableNameSufficHash: true
+  disableNameSuffixHash: true
 configMapGenerator:
   - name: cluster-substitutions
     namespace: flux-system
