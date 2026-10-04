@@ -1,13 +1,9 @@
 ---
 name: Ship
 on:  # yamllint disable-line rule:truthy
-  workflow_run:
-    workflows:
-      - Lint
+  push:
     branches:
       - main
-    types:
-      - completed
 
 permissions:
   contents: write
