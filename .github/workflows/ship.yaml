@@ -11,7 +11,7 @@ permissions:
   id-token: write
 
 env:
-  OCI_ROOT: "oci://ghcr.io/tressims/manifests/flux-infra"
+  OCI_REPO: "oci://ghcr.io/tressims/manifests/flux-infra"
 
 jobs:
   build:
@@ -47,6 +47,7 @@ jobs:
           echo $flux_output
           digest_url=$(echo $flux_output | \
           jq -r '. | .repository + "@" + .digest')
+
           cosign sign --yes $digest_url
       - name: Tag Manifests
         run: |
