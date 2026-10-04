@@ -15,5 +15,5 @@ spec:
   dependsOn:
     - name: flux-system
   components:
-    - "./base/infrastructure/_components/csi/nfs-csi"
-    - "./base/infrastructure/_components/metallb"
+    - "../../base/infrastructure/_components/csi/nfs-csi"
+    - "../../base/infrastructure/_components/metallb"
