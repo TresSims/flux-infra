@@ -15,4 +15,4 @@ spec:
   dependsOn:
     - name: flux-system
   components:
-    - "./base/infrastructure/_components/csi/local-path-provisioner"
+    - "../../base/infrastructure/_components/csi/local-path-provisioner"
