@@ -9,7 +9,7 @@ spec:
   sourceRef:
     kind: OCIRepository
     name: flux-sync
-  path: "./applications"
+  path: "./clusters/tres-sims-com/applications"
   prune: true
   timeout: 1m
   dependsOn:

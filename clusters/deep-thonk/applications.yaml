@@ -9,7 +9,7 @@ spec:
   sourceRef:
     kind: OCIRepository
     name: flux-system
-  path: "./applications"
+  path: "./clusters/deep-thonk/applications"
   prune: true
   timeout: 1m
   dependsOn:
