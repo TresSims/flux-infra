@@ -21,6 +21,17 @@ spec:
   kustomize:
     patches:
       - target:
+          kind: Kustomization
+          name: flux-system
+        patch: |
+          - op: replace
+            path: /spec/ignore
+            value:
+              - paths:
+                  - "/spec/suspend"
+                target:
+                  kind: Kustomization
+      - target:
           kind: OCIRepository
           name: flux-system
         patch: |
