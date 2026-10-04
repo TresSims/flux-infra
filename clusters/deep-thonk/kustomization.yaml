@@ -1,29 +1,18 @@
 ---
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
+metadata:
+  namespace: flux-system
 resources:
   - applications.yaml
   - configuration.yaml
   - flux-sync.yaml
   - infrastructure.yaml
+  - _cluster-overrides/cilium-cluster-values.yaml
+  - _cluster-overrides/csi-driver-nfs-cluster-values.yaml
 generatorOptions:
   disableNameSuffixHash: true
 configMapGenerator:
   - name: cluster-substitutions
-    namespace: flux-system
     literals:
       - cluster=deep-thonk
-  - name: cilium-cluster-values
-    namespace: kube-system
-    options:
-      labels:
-        reconcile.fluxcd.io/watch: Enabled
-    files:
-      - values.yaml=_cluster-overrides/cilium-cluster-values.yaml
-  - name: csi-driver-nfs-cluster-values
-    namepsace: nfs-csi
-    options:
-      labels:
-        reconcile.fluxcd.io/watch: Enabled
-    files:
-      - values.yaml=_cluster-overrides/csi-driver-nfs-cluster-values.yaml

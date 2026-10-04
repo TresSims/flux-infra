@@ -1,4 +1,13 @@
 ---
-cluster:
-  name: deep-thonk
-k8sServiceHost: 192.168.1.26
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cilium-cluster-values
+  namespace: kube-system
+  labels:
+    reconcile.fluxcd.io/watch: Enabled
+data:
+  values.yaml: |
+    cluster:
+      name: deep-thonk
+    k8sServiceHost: 192.168.1.26
