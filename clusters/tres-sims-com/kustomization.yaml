@@ -1,7 +1,6 @@
 ---
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
-namespace: flux-system
 resources:
   - applications.yaml
   - configuration.yaml
@@ -9,10 +8,4 @@ resources:
   - infrastructure.yaml
   - _cluster-overrides/cilium-cluster-values.yaml
   - _cluster-overrides/traefik-cluster-values.yaml
-generatorOptions:
-  disableNameSuffixHash: true
-configMapGenerator:
-  - name: cluster-substitutions
-    namespace: flux-system
-    literals:
-      - cluster=tres-sims-com
+  - _cluster-overrides/cluster-substitutions.yaml

@@ -1,0 +1,8 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cluster-substitutions
+  namespace: flux-system
+data:
+  cluster: tres-sims-com
