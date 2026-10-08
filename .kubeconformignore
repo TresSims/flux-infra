@@ -1,0 +1,7 @@
+# Helm values patches are not standalone Kubernetes resources.
+.*-cluster-values.*
+
+# GitHub Actions workflows are not Kubernetes resources.
+.*github.*
+
+renovate.json

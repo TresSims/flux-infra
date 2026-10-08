@@ -27,9 +27,25 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Checkout Code
         uses: actions/checkout@v7
-      - uses: docker://ghcr.io/yannh/kubeconform:v0.8.0
+      - name: Setup Args
+        # yamllint disable rule:line-length
+        run: |
+          args=(
+            -schema-location default
+            -schema-location 'https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/{{.Group}}/{{.ResourceKind}}_{{.ResourceAPIVersion}}.json'
+            -summary -output json -strict
+          )
+          while IFS= read -r pattern || [[ -n "$pattern" ]]; do
+            pattern="${pattern%$'\r'}"
+            [[ "$pattern" =~ ^[[:space:]]*(#|$) ]] && continue
+            args+=(-ignore-filename-pattern "$pattern")
+          done < .kubeconformignore
+
+          args+=(./)
+          echo "KUBECONFORM_ARGS=${args[*]}" >> "$GITHUB_ENV"
+        # yamllint enable rule:line-length
+      - name: Validate Kubernetes manifests
+        uses: docker://ghcr.io/yannh/kubeconform:v0.8.0
         with:
-          entrypoint: "/kubeconform"
-          # yamllint disable rule:line-length
-          args: -schema-location default -schema-location https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/{{.Group}}/{{.ResourceKind}}_{{.ResourceAPIVersion}}.json -skip kustomize.config.k8s.io/v1beta1/Kustomization -summary -output json -strict -ignore-filename-pattern .*-cluster-values.* -ignore-filename-pattern .*github.* ./
-          # yamllint enable rule:line-length
+          entrypoint: /kubeconform
+          args: ${{ env.KUBECONFORM_ARGS }}

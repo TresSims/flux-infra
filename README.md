@@ -47,5 +47,10 @@ maps that are used for building the cluster. It's the root that the FluxInstance
 
 ## Contributing
 
+The kubeconform lint job reads `.kubeconformignore` to configure ignored paths.
+Add one Go regular expression per line (not a glob); blank lines and comment lines
+starting with `#` are ignored. Patterns are passed as `-ignore-filename-pattern`
+arguments, so no workflow changes are needed when adding an exclusion.
+
 This repository make use of [pre-commit](https://pre-commit.com/) to automatically run git hooks 
 that makes sure that actions/tests will pass. Make sure to enroll before pushing.
