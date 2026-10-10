@@ -26,7 +26,11 @@ spec:
         secretName: jellyfin.tls
     volumes:
       - name: jellyfin-movies
+        persistentVolumeClaim:
+          claimName: jellyfin-movies
       - name: jellyfin-tv
+        persistentVolumeClaim:
+          claimName: jellyfin-tv
     volumeMounts:
       - name: jellyfin-movies
         mountPath: /mnt/jellyin-movies
