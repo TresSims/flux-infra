@@ -18,12 +18,18 @@ spec:
   values:
     ingress:
       enabled: true
-    annotations:
-      cert-manager.io/cluster-issuer: letsencrypt-prod
-    tls:
-      - hosts:
-          - jellyfin.k8s.deep-thonk.com
-        secretName: jellyfin.tls
+      className: traefik
+      annotations:
+        cert-manager.io/cluster-issuer: letsencrypt-prod
+      hosts:
+        - host: jellyfin.k8s.deep-thonk.com
+          paths:
+            - path: /
+              pathType: Prefix
+      tls:
+        - hosts:
+            - jellyfin.k8s.deep-thonk.com
+          secretName: jellyfin.tls
     volumes:
       - name: jellyfin-movies
         persistentVolumeClaim:
