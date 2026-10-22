@@ -21,7 +21,6 @@ spec:
       enabled: true
       tlsDisable: true
     server:
-      # Restart after backing up storage; unseal with existing keys.
       updateStrategyType: OnDelete
       dataStorage:
         enabled: true
@@ -29,7 +28,6 @@ spec:
         mountPath: /openbao/data
       standalone:
         enabled: true
-        # Run migration/file-to-pebbledb.yaml before starting this server.
         config: |
           ui = true
 
