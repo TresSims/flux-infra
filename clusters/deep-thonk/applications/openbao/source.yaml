@@ -2,8 +2,8 @@
 apiVersion: source.toolkit.fluxcd.io/v1
 kind: HelmRepository
 metadata:
-  name: vault-helm
-  namespace: vault
+  name: openbao-helm
+  namespace: openbao
 spec:
   interval: 1m0s
-  url: https://helm.releases.hashicorp.com
+  url: https://openbao.github.io/openbao-helm

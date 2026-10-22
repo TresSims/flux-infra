@@ -1,0 +1,54 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: openbao
+  namespace: openbao
+spec:
+  interval: 10m
+  timeout: 30m
+  chart:
+    spec:
+      chart: openbao
+      version: "0.30.4"
+      sourceRef:
+        kind: HelmRepository
+        name: openbao-helm
+        namespace: openbao
+      interval: 10m
+  values:
+    global:
+      enabled: true
+      tlsDisable: true
+    server:
+      updateStrategyType: OnDelete
+      dataStorage:
+        enabled: true
+        size: 10Gi
+        mountPath: /openbao/data
+      standalone:
+        enabled: true
+        config: |
+          ui = true
+
+          listener "tcp" {
+            tls_disable = 1
+            address = "[::]:8200"
+            cluster_address = "[::]:8201"
+          }
+          storage "pebbledb" {
+            path = "/openbao/data/pebbledb"
+          }
+      ingress:
+        enabled: true
+        annotations:
+          cert-manager.io/cluster-issuer: "letsencrypt-prod"
+        hosts:
+          - host: openbao.k8s.deep-thonk.com
+        tls:
+          - secretName: openbao-tls
+            hosts:
+              - openbao.k8s.deep-thonk.com
+    ui:
+      enabled: true
+      serviceType: "ClusterIP"
