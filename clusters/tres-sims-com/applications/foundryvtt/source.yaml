@@ -11,4 +11,4 @@ spec:
     mediaType: "application/vnd.cncf.helm.chart.content.v1.tar+gzip"
     operation: copy
   ref:
-    semver: "14.365.0"
+    semver: "14.369.0"
