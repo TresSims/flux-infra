@@ -4,6 +4,6 @@ kind: Kustomization
 resources:
   - jellyfin
   - o11y
+  - openbao
   - tailscale
   - technitium
-  - vault

@@ -45,6 +45,9 @@ maps that are used for building the cluster. It's the root that the FluxInstance
 - applications: cluster specific deployments
 - configuration: Implemntation of CRDs deployed by infrastructure
 
+The deep-thonk [OpenBao runbook](clusters/deep-thonk/applications/openbao/README.md)
+documents the in-place Vault migration, unsealing, and rollback.
+
 ## Contributing
 
 The kubeconform lint job reads `.kubeconformignore` to configure ignored paths.
