@@ -8,7 +8,7 @@
       "/source.ya?ml$/",
       "/release.ya?ml$"
     ]
-  }
+  },
   "packageRules": [
     {
       "matchManagers": ["flux"],
