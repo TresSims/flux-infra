@@ -9,4 +9,24 @@
       "/release.ya?ml$"
     ]
   }
+  "packageRules": [
+    {
+      "matchManagers": ["flux"],
+      "matchDatasources": ["helm"],
+      "registryAliases": {
+        "local-path-provisioner-helm": "https://charts.containeroo.ch",
+        "nfs-csi-helm": "https://raw.githubusercontent.com/kubernetes-csi/csi-driver-nfs/master/charts",
+        "metallb-helm": "https://metallb.github.io/metallb",
+        "cilium-helm": "https://helm.cilium.io/",
+        "external-secrets-helm": "https://charts.external-secrets.io",
+        "metrics-server-helm": "https://kubernetes-sigs.github.io/metrics-server",
+        "tetragon-helm": "https://helm.cilium.io/",
+        "traefik-helm": "https://traefik.github.io/charts",
+        "jellyfin": "https://jellyfin.github.io/jellyfin-helm",
+        "victoria-metrics-helm": "https://victoriametrics.github.io/helm-charts",
+        "grafana-helm": "https://grafana.github.io/helm-charts",
+        "tailscale-helm": "https://pkgs.tailscale.com/helmcharts"
+      }
+    }
+  ]
 }
