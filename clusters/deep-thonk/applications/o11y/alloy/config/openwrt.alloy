@@ -1,6 +1,5 @@
 prometheus.scrape "openwrt" {
-	targets         = [{"__address__" = "192.168.1.1:9100"}]
-	forward_to      = [prometheus.remote_write.vmetrics.receiver]
-	scrape_interval = "3s"
-	metrics_path    = "/metrics"
+	targets      = [{"__address__" = "192.168.1.1:9100"}]
+	forward_to   = [prometheus.remote_write.vmetrics.receiver]
+	metrics_path = "/metrics"
 }
