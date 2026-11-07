@@ -14,5 +14,6 @@ configMapGenerator:
       - config/logs.alloy
       - config/metrics.alloy
       - config/outputs.alloy
+      - config/openwrt.alloy
     options:
       disableNameSuffixHash: true
